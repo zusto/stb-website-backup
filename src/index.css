@@ -1,0 +1,440 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body {
+    margin: 0;
+    @apply overflow-x-hidden;
+  }
+  
+  body { 
+    position: relative; 
+  }
+
+  /* force every section to be transparent so body gradient shows */
+  section, footer { 
+    background: transparent !important; 
+    border: 0 !important; 
+  }
+
+  :root {
+    --background: 48 100% 97%;
+    --foreground: 35 80% 8%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 35 80% 8%;
+
+    --popover: 48 100% 97%;
+    --popover-foreground: 35 80% 8%;
+
+    --primary: 30 100% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 39 100% 60%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 39 70% 92%;
+    --muted-foreground: 35 50% 40%;
+
+    --accent: 30 100% 94%;
+    --accent-foreground: 30 80% 30%;
+
+    --destructive: 0 85% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 30 70% 88%;
+    --input: 30 70% 88%;
+    --ring: 30 100% 50%;
+
+    --radius: 1rem;
+
+    --sidebar-background: 48 100% 97%;
+    --sidebar-foreground: 35 80% 8%;
+    --sidebar-primary: 30 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 30 100% 94%;
+    --sidebar-accent-foreground: 30 80% 30%;
+    --sidebar-border: 30 70% 88%;
+    --sidebar-ring: 30 100% 50%;
+  }
+
+  .inner {
+    @apply max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+  
+  /* Custom size for the 50% larger avatar */
+  .h-84 {
+    height: 21rem; /* 336px - 50% larger than 56 (224px) */
+  }
+  
+  .w-84 {
+    width: 21rem; /* 336px - 50% larger than 56 (224px) */
+  }
+  
+  /* Gen Z style components */
+  .sunny-card {
+    @apply bg-white rounded-3xl p-6 shadow-sm border border-sunny-orange-light/20 hover:shadow-md transition-all duration-300;
+  }
+  
+  /* New card utility with backdrop blur */
+  .card {
+    @apply rounded-2xl bg-white/80 backdrop-blur p-6 shadow-xl;
+  }
+  
+  /* Background grain texture */
+  .bg-grain {
+    position: relative;
+  }
+  
+  .bg-grain::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAFZSURBVGhD7ZpBDoMgEEXB+5+gcW+MP3HlwoXxBs0YiKGtQiswMG/ztiYK/GegtA3DYK3N8zzP27YdXtd1Da/neY6dgk+t3qe2IGqt4XfrvDvZkYhKfVFhOSITDZblgCRij8AyHIhCqnOwrAakEslgGQOUkZgZGJjIGAsQQq2zBWMGbTCmMEZiKv5z7TdKYh5xH0ooe26QxH3KmEcJzKOsRnUMJTCappEUSigRg4lsSClMJUTsRSlMZUT+Q0nMowTmNRJTCfGvOlCVzzkRe6uAqZzITyiJqayIQynMoyzm9fuf6ggzEfGKJTAxEYAxEROYqIh4xRKYyIjAjMBERQTGd0xMBOY7JioC4zsmKgLjOyYuAuMzJioCUx8zz/Npn1c0EYGpj9n3/bTPK5pIM9JGmpE20ow0I22kGWlG2kgz0oy0kWakjbSRZuTDiDsrdDoIdhxH+7it0/kB6BqKkOCCHGAAAAAASUVORK5CYII=");
+    opacity: 0.04;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+  }
+  
+  /* Gen Z style components */
+  .sunny-button {
+    @apply px-6 py-3 bg-sunny-gradient text-white font-medium rounded-full shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300;
+  }
+  
+  .sunny-tag {
+    @apply bg-sunny-orange-light/40 text-sunny-orange-dark px-3 py-1 rounded-full text-sm font-medium inline-flex items-center gap-1;
+  }
+  
+  .sunny-input {
+    @apply bg-white border border-sunny-yellow-light rounded-2xl px-4 py-3 focus:ring-2 focus:ring-sunny-yellow focus:border-transparent;
+  }
+  
+  .sunny-badge {
+    @apply bg-sunny-yellow-light/50 text-sunny-orange-dark px-2 py-0.5 rounded-full text-xs font-medium;
+  }
+  
+  /* Fun interactive elements */
+  .sunny-float {
+    @apply animate-float;
+  }
+  
+  .sunny-bounce {
+    @apply animate-bounce-subtle;
+  }
+  
+  .sunny-pulse {
+    @apply animate-pulse-gentle;
+  }
+  
+  .sunny-spin {
+    @apply animate-spin-slow;
+  }
+  
+  .sunny-wiggle:hover {
+    @apply animate-wiggle;
+  }
+  
+  /* Text styles */
+  .sunny-heading {
+    @apply font-display text-sunny-orange;
+  }
+  
+  .sunny-handwritten {
+    @apply font-handwritten text-sunny-orange-dark;
+  }
+  
+  /* Speech bubble style */
+  .sunny-speech-bubble {
+    @apply relative bg-white px-4 py-2 rounded-2xl shadow-sm;
+  }
+  
+  .sunny-speech-bubble::before {
+    content: '';
+    @apply absolute w-3 h-3 bg-white transform rotate-45;
+  }
+  
+  .sunny-speech-bubble-left::before {
+    @apply -left-1.5 top-1/2 -translate-y-1/2;
+  }
+  
+  .sunny-speech-bubble-right::before {
+    @apply -right-1.5 top-1/2 -translate-y-1/2;
+  }
+  
+  .sunny-speech-bubble-top::before {
+    @apply -top-1.5 left-1/2 -translate-x-1/2;
+  }
+  
+  .sunny-speech-bubble-bottom::before {
+    @apply -bottom-1.5 left-1/2 -translate-x-1/2;
+  }
+  
+  /* Sunny rays effect */
+  .sunny-rays {
+    @apply relative overflow-hidden;
+  }
+  
+  .sunny-rays::before {
+    content: '';
+    @apply absolute inset-0 bg-sunny-rays opacity-50 sunny-spin;
+    transform-origin: center;
+  }
+  
+  /* Image filters for Gen Z aesthetic */
+  .sunny-filter {
+    filter: brightness(1.05) contrast(1.1) saturate(1.2);
+  }
+  
+  .sunny-polaroid {
+    @apply bg-white p-2 shadow-md rotate-2 transition-transform hover:rotate-0 hover:scale-105 duration-300;
+  }
+  
+  /* Fun emoji stickers */
+  .sunny-sticker {
+    @apply flex items-center justify-center rounded-full w-10 h-10 text-xl shadow-sm transform rotate-6 hover:scale-110 transition-all cursor-pointer;
+  }
+  
+  /* Typography classes */
+  .text-gradient {
+    @apply bg-sunny-gradient bg-clip-text text-transparent;
+  }
+  
+  /* Decorative elements */
+  .sunny-dot-pattern {
+    background-image: radial-gradient(#FFD600 1px, transparent 1px);
+    background-size: 12px 12px;
+  }
+  
+  .sunny-stripe-pattern {
+    background: repeating-linear-gradient(
+      45deg,
+      #FFFBEB,
+      #FFFBEB 10px,
+      #FFF1E6 10px,
+      #FFF1E6 20px
+    );
+  }
+  
+  /* New consistent section styling */
+  .stb-section {
+    @apply relative z-10 overflow-hidden;
+  }
+  
+  .stb-section-1 {
+    @apply bg-gradient-to-b from-sunny-yellow-pale via-sunny-orange-light/30 to-sunny-yellow-pale;
+  }
+  
+  .stb-section-2 {
+    @apply bg-gradient-to-r from-sunny-yellow-light/40 to-sunny-orange-light/20;
+  }
+  
+  .stb-section-3 {
+    @apply bg-gradient-to-br from-sunny-yellow/30 to-sunny-orange/10;
+  }
+  
+  .stb-section-4 {
+    @apply bg-sunny-soft;
+  }
+
+  /* Wave divider styles */
+  .stb-wave-divider {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    background-repeat: repeat-x;
+    background-size: 100px 50px;
+  }
+  
+  .stb-wave-divider-top {
+    top: -49px;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1200 120' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z' fill='%23FFFFFF' fill-opacity='0.8'%3E%3C/path%3E%3C/svg%3E");
+  }
+  
+  .stb-wave-divider-bottom {
+    bottom: -49px;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1200 120' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z' fill='%23FFFFFF' fill-opacity='0.8'%3E%3C/path%3E%3C/svg%3E");
+    transform: rotate(180deg);
+  }
+  
+  /* Journey suns styling - Enhanced for mobile responsiveness */
+  .journey-sun {
+    position: relative;
+    transition: all 0.3s ease;
+  }
+  
+  .journey-sun-icon {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(255, 122, 0, 0.2);
+  }
+  
+  .journey-sun-icon:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 12px rgba(255, 122, 0, 0.3);
+  }
+  
+  .shine-bigger {
+    animation: shine 2s infinite;
+  }
+  
+  @keyframes shine {
+    0%, 100% {
+      box-shadow: 0 0 10px 2px rgba(255, 214, 0, 0.7);
+    }
+    50% {
+      box-shadow: 0 0 20px 5px rgba(255, 122, 0, 0.9);
+    }
+  }
+  
+  /* Mobile-responsive journey steps */
+  @media (max-width: 768px) {
+    .journey-sun-icon {
+      box-shadow: 0 2px 4px rgba(255, 122, 0, 0.2);
+    }
+    
+    .shine-bigger {
+      animation: shine-mobile 2s infinite;
+    }
+    
+    @keyframes shine-mobile {
+      0%, 100% {
+        box-shadow: 0 0 6px 1px rgba(255, 214, 0, 0.7);
+      }
+      50% {
+        box-shadow: 0 0 12px 3px rgba(255, 122, 0, 0.9);
+      }
+    }
+  }
+
+  /* University stamps styling - Updated for logo images */
+  .university-stamp {
+    background-color: white;
+    border: 2px dashed #FFD600;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    padding: 8px;
+  }
+  
+  .university-stamp:hover {
+    transform: rotate(5deg);
+    border-color: #FF7A00;
+    box-shadow: 0 4px 8px rgba(255, 122, 0, 0.2);
+  }
+  
+  .university-stamp::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    height: 90%;
+    border: 1px dotted #FFD600;
+    border-radius: 50%;
+    opacity: 0.5;
+    z-index: 1;
+    pointer-events: none;
+  }
+  
+  .university-stamp img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    z-index: 2;
+  }
+
+  /* Pricing card styling */
+  .pricing-card {
+    @apply bg-white rounded-xl p-6 border border-gray-100 shadow-sm relative overflow-hidden transition-all duration-300;
+  }
+  
+  .pricing-card:hover {
+    @apply shadow-md transform -translate-y-1;
+  }
+  
+  .pricing-card-highlight {
+    @apply border-[#fdad32];
+    box-shadow: 0 10px 25px -5px rgba(253, 173, 50, 0.2);
+  }
+  
+  .pricing-card-accent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(to right, #fdad32, #fe4c02);
+  }
+  
+  .countdown-digit {
+    @apply bg-white/80 px-2 py-0.5 rounded text-[#F97316] font-mono font-bold;
+  }
+  
+  .feature-item {
+    @apply flex items-start gap-3 border border-[#ffeea6] rounded-lg p-3 bg-white;
+  }
+  
+  .feature-icon {
+    @apply h-6 w-6 rounded-full bg-gradient-to-r from-[#fdad32] to-[#fe4c02] flex items-center justify-center shrink-0;
+  }
+  
+  .brand-logo {
+    @apply bg-white/70 p-3 rounded-lg shadow-sm flex items-center justify-center h-16 text-center font-bold text-[#1e1e1e]/70 border border-[#FFD600]/20;
+  }
+  
+  .sunshine-accent {
+    @apply bg-[#ffeea6] text-[#fe4c02] px-3 py-1 rounded-full text-sm font-medium;
+  }
+  
+  .modern-sun {
+    @apply rounded-full bg-gradient-to-br from-[#fdad32] to-[#fe4c02] p-3 group-hover:shadow-lg transition-all;
+  }
+  
+  .modern-sun-icon {
+    @apply rounded-full bg-gradient-to-r from-[#fdad32] to-[#fe4c02] h-full w-full;
+  }
+}
+
+@layer utilities {
+  .debug-overflow::after {
+    content: '⚠️  overflow';
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    padding: .25rem .5rem;
+    background: red; color: #fff;
+    font-size: .75rem; text-align: center;
+    z-index: 9999;
+    pointer-events: none;
+  }
+}

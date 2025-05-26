@@ -1,0 +1,302 @@
+#root {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #FFD600aa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #FF7A00aa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+/* Student Travel Buddy specific styles - Updated for Gen Z with gradient background */
+.stb-page-container {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  position: relative;
+  color: #1A1A2E;
+}
+
+/* Add grain background as a pseudo-element to avoid the Tailwind error */
+.stb-page-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAFZSURBVGhD7ZpBDoMgEEXB+5+gcW+MP3HlwoXxBs0YiKGtQiswMG/ztiYK/GegtA3DYK3N8zzP27YdXtd1Da/neY6dgk+t3qe2IGqt4XfrvDvZkYhKfVFhOSITDZblgCRij8AyHIhCqnOwrAakEslgGQOUkZgZGJjIGAsQQq2zBWMGbTCmMEZiKv5z7TdKYh5xH0ooe26QxH3KmEcJzKOsRnUMJTCappEUSigRg4lsSClMJUTsRSlMZUT+Q0nMowTmNRJTCfGvOlCVzzkRe6uAqZzITyiJqayIQynMoyzm9fuf6ggzEfGKJTAxEYAxEROYqIh4xRKYyIjAjMBERQTGd0xMBOY7JioC4zsmKgLjOyYuAuMzJioCUx8zz/Npn1c0EYGpj9n3/bTPK5pIM9JGmpE20ow0I22kGWlG2kgz0oy0kWakjbSRZuTDiDsrdDoIdhxH+7it0/kB6BqKkOCCHGAAAAAASUVORK5CYII=");
+  opacity: 0.04;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.stb-gradient-bg {
+  background: linear-gradient(135deg, #FFFBEB 0%, #FFE0B2 50%, #FFA64D 100%);
+}
+
+.stb-card {
+  background-color: white;
+  border-radius: 24px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 15px rgba(255, 122, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.stb-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(255, 122, 0, 0.15);
+}
+
+.stb-social-tag {
+  background-color: #FF7A00;
+  color: white;
+  padding: 0.25rem 1rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.stb-handwritten {
+  font-family: 'Caveat', cursive;
+}
+
+.stb-circle-overlay {
+  position: absolute;
+  border-radius: 9999px;
+  z-index: 0;
+}
+
+/* New Gen Z Specific Styles */
+.stb-blob {
+  border-radius: 72% 28% 70% 30% / 36% 50% 50% 64%;
+  animation: blob-morph 8s ease-in-out infinite;
+}
+
+@keyframes blob-morph {
+  0%, 100% {
+    border-radius: 72% 28% 70% 30% / 36% 50% 50% 64%;
+  }
+  33% {
+    border-radius: 37% 63% 51% 49% / 37% 35% 65% 63%;
+  }
+  66% {
+    border-radius: 52% 48% 43% 57% / 63% 68% 32% 37%;
+  }
+}
+
+.stb-wavy-underline {
+  position: relative;
+}
+
+.stb-wavy-underline::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 100%;
+  height: 8px;
+  background: url("data:image/svg+xml,%3Csvg width='100' height='8' viewBox='0 0 100 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 4C10 0 15 8 25 4C35 0 40 8 50 4C60 0 65 8 75 4C85 0 90 8 100 4' stroke='%23FF7A00' stroke-width='2'/%3E%3C/svg%3E");
+  background-size: 100px 8px;
+  background-repeat: repeat-x;
+}
+
+.stb-doodle-border {
+  position: relative;
+}
+
+.stb-doodle-border::before {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  border: 2px solid #FF7A00;
+  border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+  z-index: -1;
+}
+
+.stb-emoji-spotlight {
+  position: relative;
+}
+
+.stb-emoji-spotlight::after {
+  content: '✨';
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  font-size: 20px;
+  animation: spotlight 2s ease-in-out infinite;
+}
+
+@keyframes spotlight {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2) rotate(15deg);
+    opacity: 0.8;
+  }
+}
+
+/* Section dividers */
+.stb-wave-divider {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 50px;
+  background-repeat: repeat-x;
+  background-size: 100px 50px;
+}
+
+.stb-wave-divider-top {
+  top: -49px;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1200 120' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z' fill='%23FFFFFF' fill-opacity='0.8'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.stb-wave-divider-bottom {
+  bottom: -49px;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1200 120' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z' fill='%23FFFFFF' fill-opacity='0.8'%3E%3C/path%3E%3C/svg%3E");
+  transform: rotate(180deg);
+}
+
+.stb-section-gradient-1 {
+  background: linear-gradient(135deg, #FFFBEB 0%, #FFE0B2 100%);
+}
+
+.stb-section-gradient-2 {
+  background: linear-gradient(135deg, #FFE0B2 0%, #FFA64D 50%, #FFE0B2 100%);
+}
+
+.stb-section-gradient-3 {
+  background: linear-gradient(135deg, #FFFBEB 20%, #FFD600 80%, #FFFBEB 100%);
+}
+
+.stb-section-gradient-4 {
+  background: linear-gradient(135deg, #FFF1E6 0%, #FFA64D 50%, #FFF1E6 100%);
+}
+
+/* Remove the film grain texture */
+.stb-film-grain {
+  position: relative;
+}
+
+/* Button styling */
+.stb-button {
+  background: linear-gradient(135deg, #FFD600 0%, #FF7A00 100%);
+  color: white;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  box-shadow: 0 4px 6px rgba(255, 122, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.stb-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 10px rgba(255, 122, 0, 0.2);
+}
+
+/* New Sunny Mascot styles */
+.sunny-polaroid {
+  background-color: white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  padding: 12px;
+  border-radius: 4px;
+  transform: rotate(2deg);
+  position: relative;
+}
+
+.sunny-polaroid::after {
+  content: '';
+  position: absolute;
+  bottom: 12px;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background-color: white;
+}
+
+.sunny-polaroid-caption {
+  position: absolute;
+  bottom: 8px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: 'Caveat', cursive;
+  font-size: 18px;
+  color: #333;
+}
+
+/* Animation for Sunny's arms */
+@keyframes sunny-wave {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(15deg);
+  }
+  75% {
+    transform: rotate(-15deg);
+  }
+}
+
+.sunny-wave-left {
+  animation: sunny-wave 2s ease-in-out infinite;
+  transform-origin: right center;
+}
+
+.sunny-wave-right {
+  animation: sunny-wave 2s ease-in-out infinite reverse;
+  transform-origin: left center;
+}
+
+/* Enhanced pulse animation for accessories */
+@keyframes sunny-pulse-enhanced {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+    filter: saturate(1.2);
+  }
+}
+
+.sunny-pulse-enhanced {
+  animation: sunny-pulse-enhanced 3s ease-in-out infinite;
+}
