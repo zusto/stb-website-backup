@@ -137,7 +137,7 @@ async function getInitialAccessToken(code: string) {
       client_id: process.env.ZOHO_CLIENT_ID,
       client_secret: process.env.ZOHO_CLIENT_SECRET,
       grant_type: 'authorization_code',
-      redirect_uri: process.env.ZOHO_REDIRECT_URI || 'http://localhost:3000/api/zoho/callback'
+      redirect_uri: process.env.ZOHO_REDIRECT_URI || 'https://studenttravelbuddy.com/api/zoho/callback'
     })
   });
 

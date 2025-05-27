@@ -13,7 +13,7 @@ async function testCreateStudent() {
       automaticVerification: "Not Applicable"
     };
 
-    const response = await fetch('http://localhost:3000/api/zoho/students', {
+    const response = await fetch('https://studenttravelbuddy.com/api/zoho/students', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

@@ -1,4 +1,4 @@
-import fs from 'fs/promises';
+import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 
@@ -6,37 +6,40 @@ export class StorageService {
   // Where we'll store files
   private uploadDir: string;
   // Where files can be accessed from the internet
-  private baseUrl: string;
+  private publicUrl: string;
 
   constructor() {
+    console.log('🌍 Environment:', {
+      NODE_ENV: process.env.NODE_ENV,
+      UPLOAD_DIR: process.env.UPLOAD_DIR,
+      FILE_BASE_URL: process.env.FILE_BASE_URL
+    });
+    
+    if (!process.env.UPLOAD_DIR || !process.env.FILE_BASE_URL) {
+      throw new Error('Missing required environment variables');
+    }
+
     // Update paths to match VPS configuration
-    this.uploadDir = process.env.UPLOAD_DIR || '/var/www/uploads';
-    this.baseUrl = process.env.FILE_BASE_URL || 'http://31.97.42.47/uploads';
+    this.uploadDir = process.env.UPLOAD_DIR || '/var/www/stb-website/uploads';
+    this.publicUrl = process.env.PUBLIC_URL || 'https://studenttravelbuddy.com/uploads';
+    
+    // Ensure upload directory exists
+    if (!fs.existsSync(this.uploadDir)) {
+      fs.mkdirSync(this.uploadDir, { recursive: true });
+    }
   }
 
   // Function to save a file
   async uploadFile(file: Express.Multer.File): Promise<string> {
-    try {
-      // Generate unique filename
-      const uniqueId = crypto.randomBytes(8).toString('hex');
-      const safeFilename = `${uniqueId}-${file.originalname.replace(/[^a-zA-Z0-9.-]/g, '')}`;
-      const filePath = path.join(this.uploadDir, safeFilename);
+    // Generate unique filename
+    const fileExt = path.extname(file.originalname);
+    const fileName = `${crypto.randomBytes(16).toString('hex')}${fileExt}`;
+    const filePath = path.join(this.uploadDir, fileName);
 
-      // Ensure upload directory exists
-      await fs.mkdir(this.uploadDir, { recursive: true });
+    // Save file
+    await fs.promises.writeFile(filePath, file.buffer);
 
-      // Save file
-      await fs.writeFile(filePath, file.buffer);
-      console.log('✅ File saved:', safeFilename);
-
-      // Return public URL
-      const fileUrl = `${this.baseUrl}/${safeFilename}`;
-      console.log('📎 File URL:', fileUrl);
-      return fileUrl;
-
-    } catch (error) {
-      console.error('❌ File upload error:', error);
-      throw new Error('Failed to upload file');
-    }
+    // Return public URL
+    return `${this.publicUrl}/${fileName}`;
   }
 }

@@ -44,7 +44,7 @@ function base64URLEncode(buffer: Uint8Array): string {
 export const verificationService = {
   async getAccessToken(): Promise<string> {
     try {
-      const response = await fetch('http://localhost:3000/api/verification/token', {
+      const response = await fetch('https://studenttravelbuddy.com/api/verification/token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -66,7 +66,7 @@ export const verificationService = {
   async handleAuthCallback(code: string): Promise<string> {
     try {
       const clientId = '0oa2e64l0w907UocR0h8';
-      const redirectUri = 'http://localhost:8080/auth/callback';
+      const redirectUri = 'https://studenttravelbuddy.com/auth/callback';
       const codeVerifier = sessionStorage.getItem('code_verifier');
 
       if (!codeVerifier) {
@@ -102,7 +102,7 @@ export const verificationService = {
   },
 
   async verifyStudent(token: string, studentData: VerificationPayload) {
-    const response = await fetch('http://localhost:3000/api/verification/verify', {
+    const response = await fetch('https://studenttravelbuddy.com/api/verification/verify', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

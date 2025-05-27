@@ -70,7 +70,7 @@ const AmbassadorApplicationForm: React.FC = () => {
     try {
       setIsSubmitting(true);
       
-      const response = await axios.post('http://localhost:3000/api/ambassador/apply', data);
+      const response = await axios.post('https://studenttravelbuddy.com/api/ambassador/apply', data);
 
       if (response.data.success) {
         setIsSubmitted(true); // Show thank you message

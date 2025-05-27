@@ -15,7 +15,7 @@ const MiniSignUpForm = () => {
     if (email) {
       try {
         setIsSubmitting(true);
-        const response = await axios.post('http://localhost:3000/api/subscribers/subscribe', {
+        const response = await axios.post('https://studenttravelbuddy.com/api/subscribers/subscribe', {
           email,
           source: 'Hero Form'
         });

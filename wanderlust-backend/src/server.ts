@@ -48,12 +48,17 @@ process.on('unhandledRejection', (error) => {
 // Security middlewares
 app.use(helmet());
 app.use(cors({
-  origin: 'http://localhost:8080', // Your frontend URL
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Accept'],
-  credentials: true // Enable credentials
+  origin: process.env.NODE_ENV === 'production' 
+    ? 'https://studenttravelbuddy.com'
+    : ['https://studenttravelbuddy.com', 'http://localhost:5173'],
+  credentials: true
 }));
-console.log('🔒 CORS configured for multiple origins:', ['http://localhost:8080', 'http://localhost:5173']);
+
+console.log('🔒 CORS configured for:', 
+  process.env.NODE_ENV === 'production'
+    ? 'https://studenttravelbuddy.com'
+    : ['https://studenttravelbuddy.com', 'http://localhost:5173']
+);
 
 // Logging
 app.use(morgan('dev'));
@@ -119,10 +124,10 @@ try {
   const server = app.listen(PORT, HOST, () => {
     console.log('\n=================================');
     console.log('🚀 Server is running!');
-    console.log(`📡 Server URL: http://localhost:${PORT}`);
+    console.log(`📡 Server URL: https://studenttravelbuddy.com`);
     console.log('\n📍 Available endpoints:');
-    console.log(`   GET  http://localhost:${PORT}/health`);
-    console.log(`   POST http://localhost:${PORT}/api/stripe/create-payment-intent`);
+    console.log(`   GET  https://studenttravelbuddy.com/health`);
+    console.log(`   POST https://studenttravelbuddy.com/api/stripe/create-payment-intent`);
     console.log('\n⚡ Ready to process payments!');
     console.log('=================================\n');
   });

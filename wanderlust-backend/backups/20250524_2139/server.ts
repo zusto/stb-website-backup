@@ -42,7 +42,7 @@ process.on('unhandledRejection', (error) => {
 // Security middlewares
 app.use(helmet());
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: process.env.FRONTEND_URL || 'https://studenttravelbuddy.com',
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -78,10 +78,10 @@ try {
   const server = app.listen(PORT, HOST, () => {
     console.log('\n=================================');
     console.log('🚀 Server is running!');
-    console.log(`📡 Server URL: http://localhost:${PORT}`);
+    console.log(`📡 Server URL: https://studenttravelbuddy.com`);
     console.log('\n📍 Available endpoints:');
-    console.log(`   GET  http://localhost:${PORT}/health`);
-    console.log(`   POST http://localhost:${PORT}/api/stripe/create-payment-intent`);
+    console.log(`   GET  https://studenttravelbuddy.com}/health`);
+    console.log(`   POST https://studenttravelbuddy.com/api/stripe/create-payment-intent`);
     console.log('\n⚡ Ready to process payments!');
     console.log('=================================\n');
   });

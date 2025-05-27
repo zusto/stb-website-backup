@@ -23,7 +23,7 @@ export class ZohoCRMService {
 
   constructor() {
     // Make sure this matches your backend URL
-    this.baseUrl = 'http://localhost:3000';
+    this.baseUrl = 'https://studenttravelbuddy.com';
   }
 
   async createStudentRecord(studentData: any, paymentData: any) {

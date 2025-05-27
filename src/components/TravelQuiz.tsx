@@ -91,7 +91,7 @@ export default function TravelQuiz() {
       // Debug log formatted data
       console.log('📊 Formatted answers:', formattedAnswers);
 
-      const response = await axios.post('http://localhost:3000/api/quiz/submit', {
+      const response = await axios.post('https://studenttravelbuddy.com/api/quiz/submit', {
         answers: formattedAnswers,
         calculations: {
           base: results.base,

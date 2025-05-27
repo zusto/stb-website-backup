@@ -4,8 +4,8 @@
   "description": "",
   "main": "dist/server.js",
   "scripts": {
-    "start": "node dist/server.js",
-    "dev": "NODE_ENV=development nodemon --exec ts-node -r dotenv/config src/server.ts",
+    "start": "env-cmd -f .env.production ts-node src/index.ts",
+    "dev": "env-cmd -f .env.development ts-node src/index.ts",
     "build": "tsc",
     "watch-ts": "tsc -w"
   },
