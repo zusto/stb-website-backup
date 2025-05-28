@@ -1,6 +1,6 @@
 import express from 'express';
 import { Router } from 'express';
-import { getZohoAccessToken } from '../utils/zoho';
+import { getZohoAccessToken } from '../utils/zoho.js';
 import fetch from 'node-fetch';
 
 const router = Router();

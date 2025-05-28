@@ -37,12 +37,39 @@ const CheckoutUploadDocsPage = () => {
   useEffect(() => {
     console.log('🔄 Upload page mounted');
     
-    // Check session storage immediately
+    // Check both storages immediately
     const verificationData = sessionStorage.getItem('stbVerificationData');
-    console.log('📋 Found verification data:', verificationData);
+    const checkoutData = sessionStorage.getItem('stbCheckoutDetails');
+    console.log('📋 Found data:', { verificationData, checkoutData });
 
+    // First check if user is underage from checkout data
+    if (checkoutData) {
+      try {
+        const checkoutDetails = JSON.parse(checkoutData);
+        const age = calculateAge(checkoutDetails.dateOfBirth);
+        
+        if (age <= 17) {
+          // Create verification data for underage users
+          const manualData = {
+            ...checkoutDetails,
+            verificationStatus: 'Manual',
+            verificationDate: new Date().toISOString(),
+            age
+          };
+          
+          sessionStorage.setItem('stbVerificationData', JSON.stringify(manualData));
+          console.log('✅ Created verification data for underage user:', manualData);
+          setUserData(manualData);
+          return; // Exit early for underage users
+        }
+      } catch (error) {
+        console.error('❌ Error processing checkout data:', error);
+      }
+    }
+
+    // Only redirect if no verification data AND user is not underage
     if (!verificationData) {
-      console.log('❌ No verification data found - redirecting');
+      console.log('❌ No verification data found and user is not underage - redirecting');
       toast({
         variant: "destructive",
         title: "Error",

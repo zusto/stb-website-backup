@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
@@ -33,6 +33,27 @@ const BasicDetailsForm = () => {
       agreedToTerms: false,
     },
   });
+
+    // Load saved data on mount
+  useEffect(() => {
+    const savedData = sessionStorage.getItem('stbCheckoutDetails');
+    if (savedData) {
+      try {
+        const parsedData = JSON.parse(savedData);
+        console.log('📝 Loading saved form data:', parsedData);
+        
+        // Reset form with saved values
+        form.reset(parsedData);
+      } catch (error) {
+        console.error('❌ Error loading saved data:', error);
+        toast({
+          title: "Warning",
+          description: "Could not load your previous details.",
+          variant: "destructive",
+        });
+      }
+    }
+  }, [form, toast]);
 
   const onSubmit: SubmitHandler<BasicDetailsFormValues> = (data) => {
     console.log('Form data:', data);

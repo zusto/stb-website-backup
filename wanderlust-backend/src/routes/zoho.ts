@@ -1,8 +1,8 @@
 import express, { Request, Response } from 'express';
 import fetch from 'node-fetch';
 import dotenv from 'dotenv';
-import { School, schools } from '../data/schoolsList';
-import { getStoredPaymentDetails } from '../services/paymentService';
+import { School, schools } from '../data/schoolsList.js';
+import { getStoredPaymentDetails } from '../services/paymentService.js';
 
 
 
@@ -108,23 +108,19 @@ const router = express.Router();
 
 router.post('/students', async (req: Request, res: Response) => {
   try {
-    console.log('📦 Received student data:', req.body);
-
-    // Get payment data
-    const paymentDetails = await getStoredPaymentDetails(req.body.email);
-    if (!paymentDetails) {
-      throw new Error('Payment data not found');
-    }
-
-    // Calculate age
-    const birthDate = new Date(req.body.dateOfBirth);
-    const age = new Date().getFullYear() - birthDate.getFullYear();
-
+    console.log('📦 Raw request body:', req.body);
+    
     // Get college name
     const collegeCode = req.body.college;
-    const collegeName = schools.find((school: School) => 
-      school.code === collegeCode
-    )?.name || 'Unknown College';
+    const school = schools.find(s => s.code === collegeCode);
+    const collegeName = school?.name || 'Unknown College';
+
+    // Extract verification status directly from request
+    const verificationStatus = req.body.verificationStatus || 'Manual';
+    console.log('🔍 Verification Status:', {
+      received: verificationStatus,
+      college: { code: collegeCode, name: collegeName }
+    });
 
     // Create Zoho record
     const studentData: ZohoStudentData = {
@@ -133,20 +129,15 @@ router.post('/students', async (req: Request, res: Response) => {
       Middle_Name: req.body.middleName || '',
       Last_Name: req.body.lastName,
       Email: req.body.email,
-      Mobile_Number: req.body.mobile,
+      Mobile_Number: req.body.mobile || '',
       Date_of_Birth: req.body.dateOfBirth,
       College: collegeName,
-      Verification_Status: determineVerificationStatus(req.body),
+      Verification_Status: verificationStatus,  // Use the status directly
       Verification_Date: formatZohoDateTime(new Date()),
-      // Payment data from stored details
-      Payment_Amount: paymentDetails.amount,
-      Payment_Date: formatZohoDateTime(new Date(paymentDetails.date)),
-      Payment_ID: paymentDetails.paymentId,
-      Transaction_ID: paymentDetails.transactionId,
       Manual_Documents: req.body.documents?.join(', ') || ''
     };
 
-    console.log('📤 Zoho payload:', studentData);
+    console.log('📤 Final Zoho payload:', studentData);
 
     // Make Zoho API call
     const accessToken = await getZohoAccessToken();
@@ -170,9 +161,15 @@ router.post('/students', async (req: Request, res: Response) => {
 
 
 // Add new endpoint for document submissions
-function determineVerificationStatus(verificationResponse: any): 'Verified' | 'Failed' {
+// Update the determineVerificationStatus function return type
+function determineVerificationStatus(verificationResponse: any): 'Verified' | 'Failed' | 'Manual' {
   try {
     console.log('📦 Checking enrollment status in:', verificationResponse);
+
+    // For under 17
+    if (calculateAge(verificationResponse.dateOfBirth) <= 17) {
+      return 'Manual';
+    }
 
     // Check if we have enrollment details
     if (!verificationResponse?.enrollmentDetails) {
@@ -195,11 +192,11 @@ function determineVerificationStatus(verificationResponse: any): 'Verified' | 'F
       }
     }
 
-    console.log('❌ No Full-time status (F) found → Verification FAILED');
-    return 'Failed';
+    console.log('❌ No Full-time status (F) found → Manual verification needed');
+    return 'Manual';
   } catch (error) {
     console.error('❌ Verification check error:', error);
-    return 'Failed';
+    return 'Manual';  // Default to manual on error
   }
 }
 

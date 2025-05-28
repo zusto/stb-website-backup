@@ -1,20 +1,17 @@
 import express from 'express';
 import Stripe from 'stripe';
-import { validatePaymentData } from '../middleware/validatePayment';
-import path from 'path';
+import { validatePaymentData } from '../middleware/validatePayment.js';
 
 export const stripeRouter = express.Router();
 
 if (!process.env.STRIPE_SECRET_KEY) {
-  console.error(`
+    console.error(`
 ⚠️  Stripe Configuration Error
    - STRIPE_SECRET_KEY is not set in environment variables
-   - Check that .env file exists in project root
-   - Verify dotenv is configured in server.ts
-   - Current env path: ${path.resolve(__dirname, '../.env')}
-   - Get your API keys from: https://dashboard.stripe.com/apikeys
-`);
-  process.exit(1);
+   - Environment variables should be loaded in server.ts
+   - Check server logs for environment loading details
+    `);
+    process.exit(1);
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {

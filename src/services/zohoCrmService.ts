@@ -6,7 +6,7 @@ interface StudentRecord {
   dateOfBirth: string;
   isStudent: boolean;
   college?: string;
-  automaticVerification: 'Verified' | 'Failed' | 'Not Applicable';
+  verificationStatus: 'Verified' | 'Failed' | 'Manual';  // Changed from automaticVerification
   manualDocuments?: string[];
   verificationDate: string;
   agreedToTerms: boolean;

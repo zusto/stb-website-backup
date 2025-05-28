@@ -122,19 +122,24 @@ export const useVerification = () => {
 
       if (isVerified) {
         // Only make Zoho API call for verified students
-        await zohoCRM.createStudentRecord({
+        const studentRecord = {
           ...userDetails,
-          automaticVerification: 'Verified',
+          verificationStatus: 'Verified' as const,  // Explicitly type as const
           verificationResponse,
           verificationDate: new Date().toISOString(),
           college: schoolIdentifier,
           consentGiven
-        }, {
+        };
+
+        console.log('📤 Sending verified student record:', studentRecord);
+
+        await zohoCRM.createStudentRecord(studentRecord, {
           amount: 0,
           date: new Date().toISOString(),
           id: '',
           transactionId: ''
         });
+        
         setVerificationStatus('success');
         navigate('/checkout/confirmation/success');
       } else {

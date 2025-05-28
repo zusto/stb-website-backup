@@ -9,23 +9,32 @@ export class StorageService {
   private publicUrl: string;
 
   constructor() {
+    // Debug environment variables
     console.log('🌍 Environment:', {
       NODE_ENV: process.env.NODE_ENV,
       UPLOAD_DIR: process.env.UPLOAD_DIR,
       FILE_BASE_URL: process.env.FILE_BASE_URL
     });
     
-    if (!process.env.UPLOAD_DIR || !process.env.FILE_BASE_URL) {
-      throw new Error('Missing required environment variables');
-    }
-
-    // Update paths to match VPS configuration
-    this.uploadDir = process.env.UPLOAD_DIR || '/var/www/stb-website/uploads';
-    this.publicUrl = process.env.PUBLIC_URL || 'https://studenttravelbuddy.com/uploads';
+    // Use environment variables with fallbacks
+    this.uploadDir = process.env.UPLOAD_DIR || '/home/studenttravelbuddy.com/public_html/node-app/public/lovable-uploads';
+    this.publicUrl = process.env.FILE_BASE_URL || 'https://studenttravelbuddy.com/uploads';
     
+    console.log('📁 Storage paths:', {
+      uploadDir: this.uploadDir,
+      publicUrl: this.publicUrl
+    });
+
     // Ensure upload directory exists
-    if (!fs.existsSync(this.uploadDir)) {
-      fs.mkdirSync(this.uploadDir, { recursive: true });
+    try {
+      if (!fs.existsSync(this.uploadDir)) {
+        fs.mkdirSync(this.uploadDir, { recursive: true });
+        console.log('📁 Created upload directory:', this.uploadDir);
+      }
+    } catch (error) {
+      console.error('❌ Failed to create upload directory:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Failed to initialize storage: ${errorMessage}`);
     }
   }
 

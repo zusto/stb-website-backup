@@ -1,4 +1,4 @@
-import { ZohoService } from './zohoService';
+import { ZohoService } from './zohoService.js';
 
 interface VerificationRequest {
   firstName: string;

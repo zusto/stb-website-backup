@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "dist/server.js",
+  "type": "module",
   "scripts": {
-    "start": "env-cmd -f .env.production ts-node src/index.ts",
-    "dev": "env-cmd -f .env.development ts-node src/index.ts",
     "build": "tsc",
+    "start": "node --experimental-specifier-resolution=node dist/server.js",
+    "dev": "env-cmd -f .env.development ts-node src/server.ts",
     "watch-ts": "tsc -w"
   },
   "keywords": [],
@@ -24,7 +25,7 @@
     "ioredis": "^5.6.1",
     "morgan": "^1.10.0",
     "multer": "^2.0.0",
-    "node-fetch": "^3.3.2",
+    "node-fetch": "^2.6.7",
     "path": "^0.12.7",
     "stripe": "^14.14.0"
   },

@@ -1,4 +1,4 @@
-import { ZohoResponse } from '../types/zoho';
+import { ZohoResponse } from '../types/zoho.js';
 
 // Type guard to validate response
 function isZohoResponse(data: unknown): data is ZohoResponse {

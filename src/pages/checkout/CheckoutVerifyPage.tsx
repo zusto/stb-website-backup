@@ -6,9 +6,10 @@ import VerificationConsentCheckbox from '@/components/checkout/verification/Veri
 import VerificationStatusDisplay from '@/components/checkout/verification/VerificationStatusDisplay';
 import { useSchoolsList } from '@/hooks/useSchoolsList';
 import { useVerification } from '@/hooks/useVerification';
-import { ComboSchoolField } from '@/components/checkout/verification/ComboSchoolField'; // Import the new component
-import { Label } from '@/components/ui/label'; // Import Label for the ComboSchoolField
+import { ComboSchoolField } from '@/components/checkout/verification/ComboSchoolField';
+import { Label } from '@/components/ui/label';
 import VerificationAnimation from '@/components/checkout/verification/VerificationAnimation';
+import { useToast } from '@/components/ui/use-toast';
 
 const CheckoutVerifyPage = () => {
   const [schoolIdentifier, setSchoolIdentifier] = useState<string>(""); // Will store OPEID or manual text
@@ -28,6 +29,7 @@ const CheckoutVerifyPage = () => {
     handleCompleteAndGoHome,
     handleProceedToManualUpload, 
   } = useVerification();
+  const { toast } = useToast();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -35,32 +37,28 @@ const CheckoutVerifyPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Log form data before submission
-    console.log('📝 Form Submission Data:', {
-      schoolIdentifier,
-      consentGiven,
-      isSchoolManual
-    });
 
-    // Call verification
-    await handleVerification(schoolIdentifier, consentGiven, isSchoolManual);
+    try {
+      await handleVerification(schoolIdentifier, consentGiven, isSchoolManual);
 
-    // Show animation based on verification status
-    if (verificationStatus === "success") {
-      setAnimationDetails({
-        isSuccess: true,
-        message: "Great! Your student status has been verified."
-      });
-      setShowAnimation(true);
-      setTimeout(() => handleCompleteAndGoHome(), 2000);
-    } else if (verificationStatus === "manual_required") {
-      setAnimationDetails({
-        isSuccess: false,
-        message: "We couldn't verify your student status automatically. You'll need to upload documents."
-      });
-      setShowAnimation(true);
-      setTimeout(() => handleProceedToManualUpload(), 2000);
+      // Handle animation based on status
+      if (verificationStatus === "success") {
+        setAnimationDetails({
+          isSuccess: true,
+          message: "Great! Your student status has been verified."
+        });
+        setShowAnimation(true);
+        setTimeout(() => handleCompleteAndGoHome(), 2000);
+      } else if (verificationStatus === "manual_required") {
+        setAnimationDetails({
+          isSuccess: false,
+          message: "We couldn't verify your student status automatically. You'll need to upload documents."
+        });
+        setShowAnimation(true);
+        setTimeout(() => handleProceedToManualUpload(), 2000);
+      }
+    } catch (error) {
+      console.error('Verification error:', error);
     }
   };
 
