@@ -13,6 +13,7 @@ import StripePaymentForm from '@/components/checkout/payment/StripePaymentForm';
 import PaymentPageError from '@/components/checkout/payment/PaymentPageError';
 import PaymentPageLoading from '@/components/checkout/payment/PaymentPageLoading';
 import PaymentSuccessAnimation from '@/components/checkout/payment/PaymentSuccessAnimation';
+import { zohoPayments } from '@/services/zohoPaymentService';
 
 const CheckoutPaymentPage = () => {
   const navigate = useNavigate();
@@ -53,47 +54,53 @@ const CheckoutPaymentPage = () => {
 
   const handlePaymentSuccess = async (response: PaymentResponse): Promise<void> => {
     try {
-      // Store payment data
       const paymentData = {
         amount: response.amount,
         date: new Date().toISOString(),
-        id: response.paymentId,
+        paymentId: response.paymentId,
         transactionId: response.transactionId
       };
       
-      // Get student data from checkout details
+      // Store payment data first to ensure checkout flow continues
+      sessionStorage.setItem('stbPaymentData', JSON.stringify(paymentData));
+      
+      // Get student data
       const checkoutDetails = sessionStorage.getItem('stbCheckoutDetails');
       if (!checkoutDetails) {
         throw new Error('Your details are missing. Please go back and try again.');
       }
 
       const studentData = JSON.parse(checkoutDetails);
-      console.log('📝 Student data retrieved:', studentData);
 
-      // Calculate age using the existing function
-      const age = calculateAge(studentData.dateOfBirth);
-      console.log('🎂 Age calculated:', age);
-
-      // Store payment data
-      sessionStorage.setItem('stbPaymentData', JSON.stringify(paymentData));
-      console.log('💰 Payment data stored:', paymentData);
-
-      // Navigate based on age
-      if (age <= 17) {
-        console.log('👶 Redirecting to docs (underage)');
-        navigate('/checkout/upload-docs', { 
-          state: { 
-            paymentData,
-            verificationStatus: 'Manual'
-          }
+      // Try to create Zoho record but don't block on failure
+      try {
+        await zohoPayments.createPaymentRecord({
+          First_Name: studentData.firstName,
+          Email: studentData.email,
+          Amount: Number(paymentData.amount),
+          Payment_Date: paymentData.date,
+          Payment_ID: paymentData.paymentId,
+          Transaction_ID: paymentData.transactionId,
+          Payment_Status: 'Success'
         });
-      } else {
-        console.log('🧑 Redirecting to verification (adult)');
-        navigate('/checkout/verify');
+        console.log('💫 Zoho payment record created successfully');
+      } catch (zohoError) {
+        // Log error but continue checkout flow
+        console.error('⚠️ Failed to create Zoho payment record:', zohoError);
       }
 
+      // Continue with checkout flow regardless of Zoho API status
+      const age = calculateAge(studentData.dateOfBirth);
+      if (age <= 17) {
+        navigate('/checkout/upload-docs', { 
+          state: { paymentData, verificationStatus: 'Manual' }
+        });
+      } else {
+        navigate('/checkout/verify');
+      }
+      
     } catch (error) {
-      console.error('❌ Payment success handler error:', error);
+      console.error('❌ Payment handler error:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : 'Payment processing failed',
@@ -102,7 +109,34 @@ const CheckoutPaymentPage = () => {
     }
   };
 
-  const handlePaymentError = (error: string) => {
+  const handlePaymentError = async (error: string) => {
+    try {
+      // Get student data
+      const checkoutDetails = sessionStorage.getItem('stbCheckoutDetails');
+      if (checkoutDetails) {
+        const studentData = JSON.parse(checkoutDetails);
+        
+        // Try to create failed payment record but don't block on failure
+        try {
+          await zohoPayments.createPaymentRecord({
+            First_Name: studentData.firstName,
+            Email: studentData.email,
+            Amount: 20.00,
+            Payment_Date: new Date().toISOString(),
+            Payment_ID: `failed_${Date.now()}`,
+            Transaction_ID: `error_${Date.now()}`,
+            Payment_Status: 'Failed'
+          });
+          console.log('📝 Failed payment recorded in Zoho');
+        } catch (zohoError) {
+          console.error('⚠️ Could not record failed payment in Zoho:', zohoError);
+        }
+      }
+    } catch (recordError) {
+      console.error('❌ Error handling failed payment:', recordError);
+    }
+
+    // Show error toast to user (existing functionality)
     toast({
       title: "Payment Failed",
       description: error,

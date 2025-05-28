@@ -213,4 +213,43 @@ router.post('/students/with-documents', async (req, res) => {
         });
     }
 });
+// New endpoint for payment records
+router.post('/payments', async (req, res) => {
+    try {
+        const paymentData = req.body;
+        console.log('📦 Received payment data:', paymentData);
+        // Get access token
+        const accessToken = await getZohoAccessToken();
+        // Create payment record in Zoho CRM
+        const response = await fetch(`${process.env.ZOHO_API_DOMAIN}/crm/v2/Payments`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Zoho-oauthtoken ${accessToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                data: [{
+                        Name: paymentData.First_Name,
+                        Email: paymentData.Email,
+                        Amount: paymentData.Amount,
+                        Payment_Date: formatZohoDateTime(new Date(paymentData.Payment_Date)),
+                        Payment_ID: paymentData.Payment_ID,
+                        Transaction_ID: paymentData.Transaction_ID,
+                        Payment_Status: paymentData.Payment_Status
+                    }]
+            })
+        });
+        if (!response.ok) {
+            throw new Error('Failed to create Zoho payment record');
+        }
+        res.json({ success: true });
+    }
+    catch (error) {
+        console.error('❌ Payment record creation error:', error);
+        res.status(500).json({
+            success: false,
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
 export default router;
