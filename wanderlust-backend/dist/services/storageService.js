@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
-import crypto from 'crypto';
+import { fileURLToPath } from 'url';
 export class StorageService {
     constructor() {
+        const __dirname = path.dirname(fileURLToPath(import.meta.url));
         // Debug environment variables
         console.log('🌍 Environment:', {
             NODE_ENV: process.env.NODE_ENV,
@@ -10,11 +11,12 @@ export class StorageService {
             FILE_BASE_URL: process.env.FILE_BASE_URL
         });
         // Use environment variables with fallbacks
-        this.uploadDir = process.env.UPLOAD_DIR || '/home/studenttravelbuddy.com/public_html/node-app/public/lovable-uploads';
-        this.publicUrl = process.env.FILE_BASE_URL || 'https://studenttravelbuddy.com/uploads';
+        this.uploadDir = process.env.UPLOAD_DIR || path.join(__dirname, '../../../public/lovable-uploads');
+        // Update baseUrl to match OpenLiteSpeed context
+        this.baseUrl = process.env.FILE_BASE_URL || 'https://studenttravelbuddy.com/uploads';
         console.log('📁 Storage paths:', {
             uploadDir: this.uploadDir,
-            publicUrl: this.publicUrl
+            publicUrl: this.baseUrl
         });
         // Ensure upload directory exists
         try {
@@ -31,13 +33,29 @@ export class StorageService {
     }
     // Function to save a file
     async uploadFile(file) {
-        // Generate unique filename
-        const fileExt = path.extname(file.originalname);
-        const fileName = `${crypto.randomBytes(16).toString('hex')}${fileExt}`;
-        const filePath = path.join(this.uploadDir, fileName);
-        // Save file
-        await fs.promises.writeFile(filePath, file.buffer);
-        // Return public URL
-        return `${this.publicUrl}/${fileName}`;
+        try {
+            // Ensure directory exists with LiteSpeed-friendly permissions
+            await fs.promises.mkdir(this.uploadDir, {
+                recursive: true,
+                mode: 0o755 // rwxr-xr-x
+            });
+            const uniquePrefix = new Date().toISOString().split('T')[0] + '-';
+            const safeName = file.originalname.replace(/[^a-zA-Z0-9.]/g, '_');
+            const filename = `${uniquePrefix}${safeName}`;
+            const filePath = path.join(this.uploadDir, filename);
+            // Write file with proper permissions for LiteSpeed
+            await fs.promises.writeFile(filePath, file.buffer);
+            await fs.promises.chmod(filePath, 0o644); // rw-r--r--
+            console.log('📁 File saved for LiteSpeed:', {
+                path: filePath,
+                permissions: '644',
+                url: `${this.baseUrl}/${filename}`
+            });
+            return `${this.baseUrl}/${filename}`;
+        }
+        catch (error) {
+            console.error('❌ Storage error:', error);
+            throw new Error('File storage failed');
+        }
     }
 }

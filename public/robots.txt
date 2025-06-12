@@ -1,14 +1,14 @@
-User-agent: Googlebot
-Allow: /
+# Student Travel Buddy robots.txt
 
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
+# Allow all crawlers
 User-agent: *
 Allow: /
+
+# Disallow API routes
+Disallow: /api/
+
+# Sitemaps
+Sitemap: https://studenttravelbuddy.com/sitemap.xml
+
+# Crawl delay
+Crawl-delay: 10

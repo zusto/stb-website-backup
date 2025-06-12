@@ -3,6 +3,7 @@ import fetch from 'node-fetch';
 import dotenv from 'dotenv';
 import { School, schools } from '../data/schoolsList.js';
 import { getStoredPaymentDetails } from '../services/paymentService.js';
+import { sendToSlack } from '../utils/slackNotifier.js';
 
 
 
@@ -151,6 +152,21 @@ router.post('/students', async (req: Request, res: Response) => {
     });
 
     const result = await zohoResponse.json();
+
+    await sendToSlack('Student Enrollment', {
+      Name: `${req.body.firstName} ${req.body.lastName}`.trim(),
+      First_Name: req.body.firstName,
+      Middle_Name: req.body.middleName || '',
+      Last_Name: req.body.lastName,
+      Email: req.body.email,
+      Mobile_Number: req.body.mobile || '',
+      Date_of_Birth: req.body.dateOfBirth,
+      College: collegeName,
+      Verification_Status: verificationStatus,  // Use the status directly
+      Verification_Date: formatZohoDateTime(new Date()),
+      Manual_Documents: req.body.documents?.join(', ') || ''
+    });
+
     res.json({ success: true, data: result });
 
   } catch (error) {
@@ -227,6 +243,15 @@ router.post('/students/with-documents', async (req, res) => {
     const paymentData = req.body.payment || {};
     console.log('💰 Payment data:', paymentData);
 
+    // Convert document names to full URLs if they exist
+    const documentUrls = req.body.documents?.map((doc: string) => {
+      // Check if it's already a full URL
+      if (doc.startsWith('http')) {
+        return doc;
+      }
+      return `https://studenttravelbuddy.com/uploads/${doc}`;
+    });
+
     const studentData: ZohoStudentData = {
       Name: `${req.body.firstName} ${req.body.lastName}`.trim(),
       First_Name: req.body.firstName,
@@ -242,7 +267,7 @@ router.post('/students/with-documents', async (req, res) => {
       Payment_Date: paymentData.date || '',
       Payment_ID: paymentData.id || '',
       Transaction_ID: paymentData.transactionId || '',
-      Manual_Documents: req.body.documents?.join(', ') || ''
+      Manual_Documents: documentUrls?.join(', ') || ''
     };
 
     // Log final payload

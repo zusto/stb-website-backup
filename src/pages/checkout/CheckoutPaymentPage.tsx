@@ -1,38 +1,36 @@
 import React, { useState, useEffect } from 'react';
-import { Elements } from '@stripe/react-stripe-js';
-import stripePromise from '@/lib/stripe';
+import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { CreditCard, ArrowLeft } from 'lucide-react';
 
-import { PaymentResponse } from '@/components/checkout/payment/StripePaymentForm';
 import CheckoutLayout from '@/components/checkout/CheckoutLayout';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Link, useNavigate } from 'react-router-dom';
-import { CreditCard, ArrowLeft } from 'lucide-react';
 import { BasicDetails } from '@/types/checkout';
-import StripePaymentForm from '@/components/checkout/payment/StripePaymentForm';
 import PaymentPageError from '@/components/checkout/payment/PaymentPageError';
 import PaymentPageLoading from '@/components/checkout/payment/PaymentPageLoading';
-import PaymentSuccessAnimation from '@/components/checkout/payment/PaymentSuccessAnimation';
-import { zohoPayments } from '@/services/zohoPaymentService';
+import { trackEvent as trackGAEvent } from '@/utils/analytics';
+import { trackEvent as trackPixelEvent } from '@/utils/metaPixel';
 
 const CheckoutPaymentPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [basicDetails, setBasicDetails] = useState<BasicDetails | null>(null);
   const [pageError, setPageError] = useState<string | null>(null);
-  const [showPaymentAnimation, setShowPaymentAnimation] = useState(false);
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    // Store checkout details in localStorage instead of sessionStorage
+    // This ensures data persists after redirect from Stripe
     const storedDetails = sessionStorage.getItem('stbCheckoutDetails');
     if (storedDetails) {
       try {
         const parsedDetails = JSON.parse(storedDetails);
         setBasicDetails(parsedDetails);
+        // Store in localStorage for persistence
+        localStorage.setItem('stbCheckoutDetails', storedDetails);
       } catch (e) {
-        console.error("Failed to parse details from session storage", e);
-        setPageError("Could not retrieve your details. Please go back and try again.");
+        console.error("Failed to parse details", e);
+        setPageError("Could not retrieve your details. Please try again.");
       }
     } else {
       setPageError("No details found. Please start from the first step.");
@@ -52,96 +50,20 @@ const CheckoutPaymentPage = () => {
     return age;
   };
 
-  const handlePaymentSuccess = async (response: PaymentResponse): Promise<void> => {
-    try {
-      const paymentData = {
-        amount: response.amount,
-        date: new Date().toISOString(),
-        paymentId: response.paymentId,
-        transactionId: response.transactionId
-      };
-      
-      // Store payment data first to ensure checkout flow continues
-      sessionStorage.setItem('stbPaymentData', JSON.stringify(paymentData));
-      
-      // Get student data
-      const checkoutDetails = sessionStorage.getItem('stbCheckoutDetails');
-      if (!checkoutDetails) {
-        throw new Error('Your details are missing. Please go back and try again.');
-      }
-
-      const studentData = JSON.parse(checkoutDetails);
-
-      // Try to create Zoho record but don't block on failure
-      try {
-        await zohoPayments.createPaymentRecord({
-          First_Name: studentData.firstName,
-          Email: studentData.email,
-          Amount: Number(paymentData.amount),
-          Payment_Date: paymentData.date,
-          Payment_ID: paymentData.paymentId,
-          Transaction_ID: paymentData.transactionId,
-          Payment_Status: 'Success'
-        });
-        console.log('💫 Zoho payment record created successfully');
-      } catch (zohoError) {
-        // Log error but continue checkout flow
-        console.error('⚠️ Failed to create Zoho payment record:', zohoError);
-      }
-
-      // Continue with checkout flow regardless of Zoho API status
-      const age = calculateAge(studentData.dateOfBirth);
-      if (age <= 17) {
-        navigate('/checkout/upload-docs', { 
-          state: { paymentData, verificationStatus: 'Manual' }
-        });
-      } else {
-        navigate('/checkout/verify');
-      }
-      
-    } catch (error) {
-      console.error('❌ Payment handler error:', error);
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : 'Payment processing failed',
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handlePaymentError = async (error: string) => {
-    try {
-      // Get student data
-      const checkoutDetails = sessionStorage.getItem('stbCheckoutDetails');
-      if (checkoutDetails) {
-        const studentData = JSON.parse(checkoutDetails);
-        
-        // Try to create failed payment record but don't block on failure
-        try {
-          await zohoPayments.createPaymentRecord({
-            First_Name: studentData.firstName,
-            Email: studentData.email,
-            Amount: 20.00,
-            Payment_Date: new Date().toISOString(),
-            Payment_ID: `failed_${Date.now()}`,
-            Transaction_ID: `error_${Date.now()}`,
-            Payment_Status: 'Failed'
-          });
-          console.log('📝 Failed payment recorded in Zoho');
-        } catch (zohoError) {
-          console.error('⚠️ Could not record failed payment in Zoho:', zohoError);
-        }
-      }
-    } catch (recordError) {
-      console.error('❌ Error handling failed payment:', recordError);
-    }
-
-    // Show error toast to user (existing functionality)
-    toast({
-      title: "Payment Failed",
-      description: error,
-      variant: "destructive",
+  const handleStripeRedirect = () => {
+    // Track payment initiation in both GA and Meta Pixel
+    trackGAEvent('Checkout', 'InitiateCheckout');
+    trackPixelEvent('InitiateCheckout', {
+      content_name: 'Student Travel Buddy - FullTimer',
+      value: 20.00,
+      currency: 'USD'
     });
+    
+    localStorage.setItem('stbPaymentInitiated', new Date().toISOString());
+    
+    
+    // Add both success and cancel URLs
+    window.location.href = `https://buy.stripe.com/14AbJ3faaeku73V8iF3AY00?client_reference_id=${basicDetails?.email}&prefilled_email=${basicDetails?.email}&success_url=${encodeURIComponent(`${window.location.origin}/checkout/payment/success`)}&cancel_url=${encodeURIComponent(`${window.location.origin}/checkout/payment/cancel`)}`;
   };
 
   const formatDate = (dateString: string) => {
@@ -159,10 +81,6 @@ const CheckoutPaymentPage = () => {
 
   if (!basicDetails) {
     return <PaymentPageLoading />;
-  }
-
-  if (showPaymentAnimation) {
-    return <PaymentSuccessAnimation />;
   }
 
   return (
@@ -235,19 +153,16 @@ const CheckoutPaymentPage = () => {
               Payment Details
             </CardTitle>
             <CardDescription>
-              Complete your payment securely with Stripe
+              Click below to complete your payment securely with Stripe
             </CardDescription>
           </CardHeader>
           <div className="p-6">
-            <Elements stripe={stripePromise}>
-              <StripePaymentForm
-                amount={20.00}
-                onPaymentSuccess={handlePaymentSuccess}
-                onPaymentError={handlePaymentError}
-                isProcessing={isProcessingPayment}
-                setIsProcessing={setIsProcessingPayment}
-              />
-            </Elements>
+            <button
+              onClick={handleStripeRedirect}
+              className="w-full bg-orange-500 text-white py-3 px-4 rounded-lg hover:bg-orange-600 transition-colors"
+            >
+              Join & Save Now - $20
+            </button>
           </div>
         </Card>
       </div>

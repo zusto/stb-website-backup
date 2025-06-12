@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -6,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Form } from "@/components/ui/form";
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
+import axios from 'axios';
 
 import { formSchema, BasicDetailsFormValues } from './form/basicDetailsSchema';
 import NameFields from './form/fields/NameFields';
@@ -55,31 +55,37 @@ const BasicDetailsForm = () => {
     }
   }, [form, toast]);
 
-  const onSubmit: SubmitHandler<BasicDetailsFormValues> = (data) => {
-    console.log('Form data:', data);
+  const onSubmit: SubmitHandler<BasicDetailsFormValues> = async (data) => {
     try {
-        sessionStorage.setItem('stbCheckoutDetails', JSON.stringify(data));
-        
-        const birthDate = new Date(data.dateOfBirth);
-        const today = new Date();
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const m = today.getMonth() - birthDate.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-            age--;
-        }
-        
-        toast({
-          title: "Details Saved",
-          description: "Proceeding to payment.",
+      // Save to session storage
+      sessionStorage.setItem('stbCheckoutDetails', JSON.stringify(data));
+
+      // Submit to Zoho CRM
+      try {
+        await axios.post('https://studenttravelbuddy.com/api/intakes/submit', {
+          First_Name: data.firstName,
+          Middle_Name: data.middleName || '',
+          Last_Name: data.lastName,
+          Date_of_Birth: data.dateOfBirth,
+          Email: data.email,
+          Mobile: data.mobile,
+          Submission_Date: new Date().toISOString(),
+          Lead_Source: 'ISIC Card Application'
         });
-        navigate('/checkout/payment'); 
+      } catch (apiError) {
+        console.error('Zoho API submission error:', apiError);
+      }
+
+      // Continue to payment regardless of API result
+      navigate('/checkout/payment');
     } catch (error) {
-        console.error("Failed to save to session storage:", error);
-        toast({
-            title: "Error",
-            description: "Could not save your details. Please try again.",
-            variant: "destructive",
-        });
+      console.error('Form submission error:', error);
+      toast({
+        title: "Warning",
+        description: "There was an error saving your details, but you can continue to payment.",
+        variant: "destructive",
+      });
+      navigate('/checkout/payment');
     }
   };
 

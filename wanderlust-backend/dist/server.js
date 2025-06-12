@@ -2,6 +2,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import express from 'express';
+import { checkFilePermissions } from './middleware/filePermissions.js';
+import generateSitemap from './utils/sitemapGenerator.js';
 // Get __dirname equivalent in ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -52,6 +54,8 @@ import paymentRoutes from './routes/payment.js';
 import ambassadorRouter from './routes/ambassador.js';
 import subscribersRouter from './routes/subscribers.js';
 import quizRouter from './routes/quiz.js';
+import freebieRouter from './routes/freebies.js';
+import intakesRouter from './routes/intakes.js';
 // Initialize Express
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
@@ -82,8 +86,31 @@ app.use(morgan('dev'));
 // Body parsing middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// Serve uploaded files
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+// Add permission checking middleware
+app.use('/uploads', checkFilePermissions);
+// Add MIME type configuration
+app.use('/uploads', (req, res, next) => {
+    const filePath = req.path;
+    if (filePath.endsWith('.pdf')) {
+        res.type('application/pdf');
+    }
+    else if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg')) {
+        res.type('image/jpeg');
+    }
+    else if (filePath.endsWith('.png')) {
+        res.type('image/png');
+    }
+    next();
+});
+app.use('/uploads', express.static(path.join(__dirname, '../public/lovable-uploads'), {
+    setHeaders: (res, path) => {
+        res.set('Access-Control-Allow-Origin', '*');
+        if (path.endsWith('.pdf')) {
+            res.set('Content-Type', 'application/pdf');
+        }
+    }
+}));
+console.log('📁 Static file serving configured for uploads');
 // Logging middleware for specific routes
 app.use('/api/ambassador/apply', (req, res, next) => {
     console.log('📝 New ambassador application:', {
@@ -99,6 +126,16 @@ app.use('/api/quiz/submit', (req, res, next) => {
     });
     next();
 });
+// Logging middleware for Zoho routes
+app.use('/api/zoho', (req, res, next) => {
+    console.log('📝 Zoho API Request:', {
+        method: req.method,
+        path: req.path,
+        body: req.body,
+        timestamp: new Date().toISOString()
+    });
+    next();
+});
 // API Routes
 app.use('/api/stripe', stripeRouter);
 app.use('/api/verification', verificationRouter);
@@ -108,14 +145,24 @@ app.use('/api/payment', paymentRoutes);
 app.use('/api/ambassador', ambassadorRouter);
 app.use('/api/subscribers', subscribersRouter);
 app.use('/api/quiz', quizRouter);
-// Health check endpoint
+app.use('/api/freebies', freebieRouter);
+app.use('/api/intakes', intakesRouter);
+// Health check endpoint with detailed logging
 app.get('/api/health', (req, res) => {
+    console.log('🏥 Health check requested:', {
+        path: req.path,
+        method: req.method,
+        headers: req.headers,
+        timestamp: new Date().toISOString()
+    });
     res.json({
         status: 'ok',
         timestamp: new Date().toISOString(),
         env: process.env.NODE_ENV,
         stripe: process.env.STRIPE_SECRET_KEY ? 'configured' : 'not configured',
-        uptime: process.uptime()
+        uptime: process.uptime(),
+        port: PORT,
+        host: HOST
     });
 });
 // Global error handling middleware
@@ -128,7 +175,7 @@ app.use((err, req, res, next) => {
 });
 // Start server
 try {
-    const server = app.listen(PORT, HOST, () => {
+    const server = app.listen(PORT, HOST, async () => {
         console.log('\n=================================');
         console.log('🚀 Server is running!');
         console.log(`📡 Environment: ${process.env.NODE_ENV}`);
@@ -138,6 +185,7 @@ try {
         console.log(`   POST ${process.env.FRONTEND_URL}/api/stripe/create-payment-intent`);
         console.log('\n⚡ Ready to process requests!');
         console.log('=================================\n');
+        await generateSitemap();
     });
     server.on('error', (error) => {
         if (error.code === 'EADDRINUSE') {

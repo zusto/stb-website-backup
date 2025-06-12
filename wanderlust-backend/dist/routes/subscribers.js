@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { getZohoAccessToken } from '../utils/zoho.js';
 import fetch from 'node-fetch';
+import { sendToSlack } from '../utils/slackNotifier.js';
 const router = Router();
 // Add counter at the top
 let subscriberCounter = 0;
@@ -32,7 +33,13 @@ router.post('/subscribe', async (req, res) => {
         }
         const result = await response.json();
         console.log('✅ Zoho lead created:', result);
-        res.json({ success: true });
+        await sendToSlack('Newsletter Subscription', {
+            Email: email,
+            Lead_Source: source || 'Website Subscription',
+            Name: `Subscriber_${subscriberCounter.toString().padStart(4, '0')}`, // e.g. Subscriber_0001
+            Description: `Subscribed via ${source}`
+        });
+        res.status(200).json({ success: true });
     }
     catch (error) {
         console.error('❌ Subscription error:', error);

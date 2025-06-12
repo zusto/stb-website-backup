@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom'; // Added import
 import { Button } from '@/components/ui/button';
-import { Menu, X, Sun, Sparkles, Users, Check } from 'lucide-react';
+import { Menu, X, Sun, Sparkles, Users, Check, Gift } from 'lucide-react';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -25,6 +25,7 @@ const Navbar = () => {
 
   const navItems = [
     { name: 'Travel Quiz', path: '#quiz', icon: <Check className="h-4 w-4 mr-2 text-sunny-yellow-dark" /> },
+    { name: 'Free Resources', path: '/freebies', icon: <Gift className="h-4 w-4 mr-2 text-sunny-yellow-dark" /> },
     { name: 'The Sunshine Club', path: '#sunshine-club', icon: <Sun className="h-4 w-4 mr-2 text-sunny-yellow-dark" /> },
     { name: 'Our Story', path: '#backstory', icon: <Sparkles className="h-4 w-4 mr-2 text-sunny-yellow-dark" /> },
     { name: 'Ambassadors', path: '#ambassador', icon: <Users className="h-4 w-4 mr-2 text-sunny-yellow-dark" /> }
@@ -53,14 +54,17 @@ const Navbar = () => {
 
   const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, path: string) => {
     e.preventDefault();
-    if (location.pathname === '/') {
-      const section = document.querySelector(path);
-      if (section) {
-        section.scrollIntoView({ behavior: 'smooth' });
+    if (path.startsWith('#')) {
+      if (location.pathname === '/') {
+        const section = document.querySelector(path);
+        if (section) {
+          section.scrollIntoView({ behavior: 'smooth' });
+        }
+      } else {
+        window.location.href = `/${path}`;
       }
     } else {
-      // If not on the homepage, navigate to homepage with hash
-      window.location.href = `/${path}`; // Standard navigation will handle the hash
+      window.location.href = path;
     }
     if (isMenuOpen) {
       setIsMenuOpen(false);

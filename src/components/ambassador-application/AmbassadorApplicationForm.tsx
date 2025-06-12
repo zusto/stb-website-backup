@@ -165,7 +165,7 @@ const AmbassadorApplicationForm: React.FC = () => {
                 Submitting...
               </div>
             ) : (
-              'Submit Application'
+              'Send In Your Application'
             )}
           </Button>
         </form>

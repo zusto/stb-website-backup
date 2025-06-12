@@ -16,6 +16,7 @@
   "dependencies": {
     "@types/multer": "^1.4.12",
     "@types/node-fetch": "^2.6.12",
+    "axios": "^1.9.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.1",
     "express": "^4.18.2",
@@ -25,9 +26,11 @@
     "ioredis": "^5.6.1",
     "morgan": "^1.10.0",
     "multer": "^2.0.0",
-    "node-fetch": "^2.6.7",
+    "node-fetch": "^2.7.0",
     "path": "^0.12.7",
-    "stripe": "^14.14.0"
+    "sitemap": "^8.0.0",
+    "stripe": "^14.14.0",
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",

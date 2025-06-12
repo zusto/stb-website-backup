@@ -2,6 +2,7 @@ import express from 'express';
 import { Router } from 'express';
 import { getZohoAccessToken } from '../utils/zoho.js';
 import fetch from 'node-fetch';
+import { sendToSlack } from '../utils/slackNotifier.js';
 
 const router = Router();
 
@@ -79,7 +80,17 @@ router.post('/submit', async (req, res) => {
     }
 
     const result = await response.json();
-    console.log('✅ Quiz data stored in Zoho:', result);
+
+    await sendToSlack('Quiz Submission', {
+        Name: answers.name || 'Anonymous',
+        Email: answers.email || '',
+        Destination: answers.dest || '',
+        Travel_Vibe: answers.vibe || '',
+        Budget_Style: answers.style || '',
+        Spending_Categories: spendingCategories, // Already formatted string from frontend
+        Group_Size: answers.group || 'Solo',
+        Quiz_Date: formatZohoDateTime(now)
+    });
 
     res.json({ success: true, data: result });
 

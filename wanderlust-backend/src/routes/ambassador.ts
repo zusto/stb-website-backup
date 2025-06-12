@@ -2,6 +2,7 @@ import express from 'express';
 import { Router } from 'express';
 import { getZohoAccessToken } from '../utils/zoho.js';
 import fetch from 'node-fetch';
+import { sendToSlack } from '../utils/slackNotifier.js';
 
 const router = Router();
 
@@ -101,6 +102,33 @@ router.post('/apply', async (req, res) => {
 
     const result = await response.json();
     console.log('✅ Zoho response:', result);
+
+    // Add Slack notification
+    await sendToSlack('Ambassador Application', {
+          Name: req.body.fullName,
+          Email: req.body.email,
+          Mobile: req.body.mobile,
+          Date_of_Birth: formatZohoDate(req.body.birthday),
+          Home_Base: req.body.homeBaseUS,
+          College: req.body.collegeUniversity,
+          Abroad_Location: req.body.abroadLocation,
+          Guide_Current_Location: req.body.guideLocation,
+          Preferred_Destinations: req.body.preferredDestinations || '',
+          Pitch: req.body.pitch,
+          Payout_Method: req.body.payoutMethod,
+          Instagram: req.body.instagramHandle || '',
+          TikTok: req.body.tiktokHandle || '',
+          YouTube: req.body.youtubeLink || '',
+          Hours_Commitment: req.body.hoursCommitment,
+          Languages: req.body.languagesSpoken,
+          Portfolio: req.body.portfolioLink || '',
+          How_Heard: req.body.howHeard,
+          Past_Gigs: req.body.pastGigs || '',
+          Preferred_Chat: req.body.preferredChat,
+          Leade_Source: "website-ambassador-form", // Default value
+          Application_Date: formatZohoDateTime(now), // Format date properly
+          Status: 'New'
+    });
 
     res.json({ success: true, data: result });
 

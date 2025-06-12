@@ -48,25 +48,25 @@ const CheckoutUploadDocsPage = () => {
         const checkoutDetails = JSON.parse(checkoutData);
         const age = calculateAge(checkoutDetails.dateOfBirth);
         
-        if (age <= 17) {
-          // Create verification data for underage users
-          const manualData = {
-            ...checkoutDetails,
-            verificationStatus: 'Manual',
-            verificationDate: new Date().toISOString(),
-            age
-          };
-          
-          sessionStorage.setItem('stbVerificationData', JSON.stringify(manualData));
-          console.log('✅ Created verification data for underage user:', manualData);
-          setUserData(manualData);
-          return; // Exit early for underage users
-        }
+        // Create verification data for all users temporarily
+        const manualData = {
+          ...checkoutDetails,
+          verificationStatus: 'Manual',
+          verificationDate: new Date().toISOString(),
+          age
+        };
+        
+        sessionStorage.setItem('stbVerificationData', JSON.stringify(manualData));
+        console.log('✅ Created verification data:', manualData);
+        setUserData(manualData);
+        return;
+        
       } catch (error) {
         console.error('❌ Error processing checkout data:', error);
       }
     }
 
+    /* TEMPORARILY DISABLED - RESTORE WHEN API IS READY
     // Only redirect if no verification data AND user is not underage
     if (!verificationData) {
       console.log('❌ No verification data found and user is not underage - redirecting');
@@ -78,14 +78,16 @@ const CheckoutUploadDocsPage = () => {
       navigate('/checkout/verify');
       return;
     }
+    */
 
-    try {
-      const parsedData = JSON.parse(verificationData);
-      console.log('✅ Loaded verification data:', parsedData);
-      setUserData(parsedData);
-    } catch (error) {
-      console.error('❌ Parse error:', error);
-      navigate('/checkout/verify');
+    if (verificationData) {
+      try {
+        const parsedData = JSON.parse(verificationData);
+        console.log('✅ Loaded verification data:', parsedData);
+        setUserData(parsedData);
+      } catch (error) {
+        console.error('❌ Parse error:', error);
+      }
     }
   }, [navigate, toast]);
 
@@ -139,22 +141,54 @@ const CheckoutUploadDocsPage = () => {
     setIsSubmitting(true);
 
     try {
-      const verificationData = sessionStorage.getItem('stbVerificationData');
-      if (!verificationData) {
-        throw new Error('No verification data found');
+      if (formData.uploadMethod === 'upload' && formData.documents.length > 0) {
+        // Create form data for upload
+        const uploadFormData = new FormData();
+        formData.documents.forEach(file => {
+          uploadFormData.append('documents', file);
+        });
+
+        // Upload files first
+        const uploadResponse = await fetch('/api/upload', {
+          method: 'POST',
+          body: uploadFormData
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error('Failed to upload documents');
+        }
+
+        const uploadResult = await uploadResponse.json();
+        console.log('📤 Upload result:', uploadResult);
+
+        // Get the URLs from upload response
+        const documentUrls = uploadResult.files.map((file: any) => file.url);
+
+        // Submit to Zoho with URLs
+        const zohoCRM = new ZohoCRMService();
+        await zohoCRM.createStudentRecordWithDocuments({
+          ...userData,
+          uploadMethod: formData.uploadMethod,
+          documents: documentUrls
+        });
+      } else {
+        const verificationData = sessionStorage.getItem('stbVerificationData');
+        if (!verificationData) {
+          throw new Error('No verification data found');
+        }
+
+        const userData = JSON.parse(verificationData);
+        console.log('📤 Submitting verification data:', userData);
+
+        const zohoCRM = new ZohoCRMService();
+        await zohoCRM.createStudentRecordWithDocuments({
+          ...userData,
+          uploadMethod: formData.uploadMethod,
+          documents: formData.uploadMethod === 'email' 
+            ? ['Opted to Email']
+            : formData.documents.map(file => file.name)
+        });
       }
-
-      const userData = JSON.parse(verificationData);
-      console.log('📤 Submitting verification data:', userData);
-
-      const zohoCRM = new ZohoCRMService();
-      await zohoCRM.createStudentRecordWithDocuments({
-        ...userData,
-        uploadMethod: formData.uploadMethod,
-        documents: formData.uploadMethod === 'email' 
-          ? ['Opted to Email']
-          : formData.documents.map(file => file.name)
-      });
 
       // Clear stored data
       sessionStorage.removeItem('stbVerificationData');
@@ -233,6 +267,24 @@ const CheckoutUploadDocsPage = () => {
 
           {formData.uploadMethod === 'upload' && (
             <>
+              {/* Add this guidelines box first */}
+              <div className="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-md">
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <span className="text-lg" role="img" aria-label="document">📄</span>
+                    <p className="text-sm text-gray-600 text-left"><strong>1 file is usually enough.</strong></p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="text-lg" role="img" aria-label="folder">📂</span>
+                    <p className="text-sm text-gray-600 text-left"><strong>Uploading more?</strong> Select them all at once—single-batch only.</p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="text-lg" role="img" aria-label="lock">🔒</span>
+                    <p className="text-sm text-gray-600 text-left"><strong>Limit: 1 MB each.</strong> Compress anything bigger.</p>
+                  </div>
+                </div>
+              </div>
+
               <div className="mb-4">
                 <label htmlFor="document-upload" className="block text-sm font-medium text-gray-700 mb-2">
                   Choose document to upload (PDF, JPG, PNG)

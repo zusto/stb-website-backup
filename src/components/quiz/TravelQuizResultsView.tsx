@@ -124,6 +124,13 @@ export const TravelQuizResultsView: React.FC<Omit<TravelQuizResultsViewProps, 'h
         Want to see your <span className="font-semibold text-sunny-orange-dark">specific ISIC discounts</span> and get a <span className="font-semibold text-sunny-orange-dark">fully personalized travel plan</span> from Sunny? Grab your membership!
       </p>
 
+      {/* Add this link */}
+      <button 
+      onClick={() => window.location.reload()} 
+      className="text-sunny-orange hover:text-sunny-orange-dark transition-colors mb-4 text-sm font-medium">
+      ↻ Try Another Destination
+      </button>
+
       <motion.button 
         whileHover={{ scale: 1.05 }} 
         className={`${gradientBtn} text-white px-6 py-3 rounded-2xl text-lg shadow-lg`}

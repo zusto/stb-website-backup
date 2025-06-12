@@ -142,7 +142,7 @@ const CheckoutConfirmationPage = () => {
                   <ul className="list-disc list-inside md:list-outside ml-0 md:ml-6 space-y-2 mt-6 text-left">
                     <li>No action needed right now.</li>
                     <li>Need it faster? Reply to the confirmation e-mail with “URGENT – FLIGHT”.</li>
-                    <li>Messed up your file upload? Use the link in that e-mail to replace it.</li>
+                    <li>📤 Uploaded the wrong file? Email the correct one from the same address you used on the form to <strong>verifications@studenttravelbuddy.com.</strong></li>
                   </ul>
                 </>}
 
